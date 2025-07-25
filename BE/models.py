@@ -1,38 +1,35 @@
 """
-用户模型与模拟数据库相关操作。
+数据库模型定义。
 """
+from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 
+db = SQLAlchemy()
 bcrypt = Bcrypt()
 
-# 模拟数据库
-users = {}
 
-# 用户模型函数
-
-
-def create_user(email, password):
+class User(db.Model):
     """
-    创建新用户并保存到模拟数据库。
-    :param email: 用户邮箱
-    :param password: 明文密码
-    :return: 用户字典对象
+    用户模型。
     """
-    hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
-    user = {
-        'email': email,
-        'password': hashed_pw,
-        'role': 'user',
-        'permissions': ['view_profile']
-    }
-    users[email] = user
-    return user
+    __tablename__ = 'users'
 
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(50), default='user')
+    permissions = db.Column(db.PickleType, default=lambda: ['view_profile'])
 
-def get_user(email):
-    """
-    根据邮箱获取用户信息。
-    :param email: 用户邮箱
-    :return: 用户字典对象或 None
-    """
-    return users.get(email)
+    def check_password(self, password_plaintext):
+        """
+        检查密码是否正确。
+        """
+        return bcrypt.check_password_hash(self.password, password_plaintext)
+
+    @classmethod
+    def create(cls, email, password):
+        """
+        创建新用户。
+        """
+        hashed = bcrypt.generate_password_hash(password).decode('utf-8')
+        return cls(email=email, password=hashed)
