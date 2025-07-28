@@ -8,11 +8,14 @@ from utils.jwt import create_token
 auth_bp = Blueprint('auth', __name__)
 
 
-@auth_bp.route('/register', methods=['POST'])
+@auth_bp.route('/register', methods=['POST', 'OPTIONS'])
 def register():
     """
-    用户注册接口，创建新用户并返回 token。
+    用户注册接口，创建新用户。
     """
+    if request.method == 'OPTIONS':
+        return '', 200
+
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
@@ -24,15 +27,17 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    token = create_token(new_user)
-    return jsonify({'accessToken': token, 'user': serialize_user(new_user)})
+    return jsonify({'message': 'User registered successfully', 'user': serialize_user(new_user)})
 
 
-@auth_bp.route('/login', methods=['POST'])
+@auth_bp.route('/login', methods=['POST', 'OPTIONS'])
 def login():
     """
     用户登录接口，校验凭证并返回 token。
     """
+    if request.method == 'OPTIONS':
+        return '', 200
+
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')

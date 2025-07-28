@@ -77,5 +77,4 @@ flask db downgrade
 
 > 说明：
 >
-> - `migrations/` 目录应提交到 git。
 > - SQLite 数据库文件（如 demo 环境下的 `app.db`）上传 git 便于演示，但生产环境建议忽略。

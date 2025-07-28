@@ -17,8 +17,12 @@ migrate = Migrate(app, db)
 with app.app_context():
     db.create_all()
 
-# 允许跨域
-CORS(app)
+# 允许跨域 - 添加对OPTIONS预检请求的支持
+CORS(app,
+     origins=["http://localhost:3000"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+     supports_credentials=True)
 
 # 注册蓝图
 app.register_blueprint(auth_bp, url_prefix='/api')
